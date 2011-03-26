@@ -826,6 +826,10 @@
   // Cached regex to split keys for `delegate`.
   var eventSplitter = /^(\w+)\s*(.*)$/;
 
+  var eventNames = ("blur focus focusin focusout load resize scroll unload click dblclick " +
+    "mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
+    "change select submit keydown keypress keyup error").split(" ");
+    
   // List of view options to be merged as properties.
   var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName'];
 
@@ -883,13 +887,16 @@
     // This only works for delegate-able events: not `focus`, `blur`, and
     // not `change`, `submit`, and `reset` in Internet Explorer.
     delegateEvents : function(events) {
-      if (!(events || (events = this.events))) return;
+      events = events || this;
       $(this.el).unbind('.delegateEvents' + this.cid);
       for (var key in events) {
         var methodName = events[key];
         var match = key.match(eventSplitter);
+        if (!match || _.indexOf(eventNames, match[1]) == -1) {
+            continue;
+        }
         var eventName = match[1], selector = match[2];
-        var method = _.bind(this[methodName], this);
+        var method = _.bind(methodName, this);
         eventName += '.delegateEvents' + this.cid;
         if (selector === '') {
           $(this.el).bind(eventName, method);

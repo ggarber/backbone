@@ -42,7 +42,7 @@ $(document).ready(function() {
     view.el = document.body;
     view.increment = function(){ counter++; };
     $(view.el).bind('click', function(){ counter2++; });
-    var events = {"click #qunit-banner": "increment"};
+    var events = {"click #qunit-banner": view.increment};
     view.delegateEvents(events);
     $('#qunit-banner').trigger('click');
     equals(counter, 1);
@@ -93,10 +93,7 @@ $(document).ready(function() {
   test("View: multiple views per element", function() {
     var count = 0, ViewClass = Backbone.View.extend({
       el: $("body"),
-      events: {
-        "click": "click"
-      },
-      click: function() {
+      "click": function() {
         count++;
       }
     });
@@ -113,4 +110,25 @@ $(document).ready(function() {
     $("body").trigger("click");
     equals(5, count);
   });
+  
+  test("View: view inheritance", function() {
+    var count = 0, count2 = 0;
+    var ViewClass = Backbone.View.extend({
+      el: $("body"),
+      "click": function() {
+        count++;
+      }
+    });
+    var SubviewClass = ViewClass.extend({
+      "dblclick": function() {
+        count2++;
+      }
+    });
+
+    var view = new SubviewClass;
+    $("body").trigger("click");
+    equals(1, count);
+    
+    $("body").trigger("dblclick");
+    equals(1, count2);  });
 });
